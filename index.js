@@ -4,7 +4,8 @@ const cors=require('cors')
 require('dotenv').config();
 const port=process.env.PORT || 9000
 
-const { MongoClient, ServerApiVersion, Collection } = require('mongodb');
+
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}
@@ -30,18 +31,27 @@ async function run() {
     await client.connect();
     const db=client.db('StudymateDB')
     const userProfileColl=db.collection('create-user-profile')
-
-    app.post('/user-Profile',async(req,res)=>{
+        // createProfile
+    app.post('/createProfile',async(req,res)=>{
         const createProfile=req.body;
         const result=await userProfileColl.insertOne(createProfile)
         res.send(result)
     })
-
+    app.get('/partner/:id',async(req,res)=>{
+        const id=req.params.id
+        const query={ _id: new ObjectId(id)}
+        const result=await userProfileColl.findOne(query)
+        res.send(result)
+    })
+  //    display userProfile
     app.get('/userProfile',async(req,res)=>{
         const result=await userProfileColl.find().toArray()
        res.send(result)
     })
-    
+    app.get('/topStudyProfile',async(req,res)=>{
+        const result=await userProfileColl.find().sort({rating:-1}).limit(6).toArray()
+        res.send(result)
+    })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
