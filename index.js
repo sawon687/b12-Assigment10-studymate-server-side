@@ -54,17 +54,27 @@ async function run() {
         try {
             const partnerRequest=req.body;
          const {partnerId,request_Email}=partnerRequest;
+         console.log(partnerId,request_Email)
+              console.log(partnerRequest)
+  
+
+        
          const  query={_id: new ObjectId(partnerId)}
-          const alredayRequested=await myConnection.findOne({partnerId,request_Email})
+          const alredayRequested=await myConnection.findOne({partnerId,      // je partner e request pathano hocche
+            request_Email})
           
           if(alredayRequested)
           {
              return res.send({message:'you have alreday request'})
           }
+
+           
            const update={$inc:{patnerCount:+ 1}}
+
           const updateCount=await userProfileColl.updateOne(query,update)
-           const result=await myConnection.insertOne(partnerRequest)
+          const result=await myConnection.insertOne(partnerRequest)
           
+          console.log(result)
          
          return res.send({
           success: true,
@@ -79,7 +89,13 @@ async function run() {
 
       // myconnection delete 
 
-     
+      app.delete('/myConnection/:id',async(req,res)=>{
+         const id=req.params.id;
+         const query={_id: new ObjectId(id)}
+         const result=await myConnection.deleteOne(query)
+        res.send(result)
+      })
+
      
     app.get('/myConnection',async(req,res)=>{
       const  email=req.query.email;
