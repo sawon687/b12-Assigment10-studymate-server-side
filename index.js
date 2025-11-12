@@ -1,126 +1,138 @@
-const express=require('express');
-const app=express();
-const cors=require('cors')
+const express = require('express');
+const app = express();
+const cors = require('cors');
 require('dotenv').config();
-const port=process.env.PORT || 9000
+const port = process.env.PORT || 9000;
 
+const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ofja8we.mongodb.net/?retryWrites=true&w=majority&tls=true`;
 
-const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}
-@cluster0.ofja8we.mongodb.net/?appName=Cluster0`;
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
-app.use(express.json())
-app.use(cors())
 
-app.get('/',(req,res)=>{
-    res.send('server start studymate')
-})
+app.use(express.json());
+app.use(cors());
+
+app.get('/', (req, res) => {
+  res.send('Server started successfully ✅');
+});
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
+    // ✅ Connect to MongoDB Atlas
     await client.connect();
-    const db=client.db('StudymateDB')
-    const userProfileColl=db.collection('create-user-profile')
-    const myConnection=db.collection('partnerRequest')
-        // createProfile
-    app.post('/createProfile',async(req,res)=>{
-        const createProfile=req.body;
-        const result=await userProfileColl.insertOne(createProfile)
-        res.send(result)
-    })
-    app.get('/partner/:id',async(req,res)=>{
-        const id=req.params.id
-        const query={ _id: new ObjectId(id)}
-        const result=await userProfileColl.findOne(query)
-        res.send(result)
-    })
-  //    display userProfile
-    app.get('/userProfile',async(req,res)=>{
-        const result=await userProfileColl.find().toArray()
-       res.send(result)
-    })
-      //  myconnection user
-      app.post('/myConnection',async(req,res)=>{
-        try {
-            const partnerRequest=req.body;
-         const {partnerId,request_Email}=partnerRequest;
-         console.log(partnerId,request_Email)
-              console.log(partnerRequest)
-  
+    console.log('MongoDB connected successfully ✅');
 
-        
-         const  query={_id: new ObjectId(partnerId)}
-          const alredayRequested=await myConnection.findOne({partnerId,      // je partner e request pathano hocche
-            request_Email})
-          
-          if(alredayRequested)
-          {
-             return res.send({message:'you have alreday request'})
-          }
+    const db = client.db('StudymateDB');
+    const userProfileColl = db.collection('create-user-profile');
+    const myConnection = db.collection('partnerRequest');
 
-           
-           const update={$inc:{patnerCount:+ 1}}
+    // Create user profile
+    app.post('/createProfile', async (req, res) => {
+      try {
+        const createProfile = req.body;
+        const result = await userProfileColl.insertOne(createProfile);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+      }
+    });
 
-          const updateCount=await userProfileColl.updateOne(query,update)
-          const result=await myConnection.insertOne(partnerRequest)
-          
-          console.log(result)
-         
-         return res.send({
-          success: true,
-        message: "Partner Request Sent Successfully!",
-          requsetData:result,updateCount})
-         
-        } catch (error) {
-           return res.status(500).send({ success: false, message: error.message });
-        }
-        
-      })
+    // Get partner by ID
+    app.get('/partner/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await userProfileColl.findOne(query);
+        res.send(result);
+      } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+      }
+    });
 
-      // myconnection delete 
-
-      app.delete('/myConnection/:id',async(req,res)=>{
-         const id=req.params.id;
-         const query={_id: new ObjectId(id)}
-         const result=await myConnection.deleteOne(query)
-        res.send(result)
-      })
-
-     
-    app.get('/myConnection',async(req,res)=>{
-      const  email=req.query.email;
-      const  query={request_Email:email}
-      const  result=await myConnection.find(query).toArray();
-      
+    // Get all user profiles
+    app.get('/userProfile', async (req, res) => {
+      const result = await userProfileColl.find().toArray();
       res.send(result);
-    })
-    
-    app.get('/topStudyProfile',async(req,res)=>{
-        const result=await userProfileColl.find().sort({rating:-1}).limit(6).toArray()
-        res.send(result)
-    })
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
+    });
+
+    // Send partner request
+    app.post('/myConnection', async (req, res) => {
+      try {
+        const { partnerId, request_Email } = req.body;
+
+        const query = { _id: new ObjectId(partnerId) };
+        const alreadyRequested = await myConnection.findOne({ partnerId, request_Email });
+
+        if (alreadyRequested) {
+          return res.send({ message: 'You have already sent a request' });
+        }
+
+        const update = { $inc: { patnerCount: 1 } };
+        const updateCount = await userProfileColl.updateOne(query, update);
+        const result = await myConnection.insertOne(req.body);
+
+        res.send({
+          success: true,
+          message: 'Partner Request Sent Successfully!',
+          requestData: result,
+          updateCount,
+        });
+      } catch (error) {
+        res.status(500).send({ success: false, message: error.message });
+      }
+    });
+
+    // Delete a connection
+    app.delete('/myConnection/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await myConnection.deleteOne(query);
+      res.send(result);
+    });
+
+    // Get connections by email
+    app.get('/myConnection', async (req, res) => {
+      const email = req.query.email;
+      const query = { request_Email: email };
+      const result = await myConnection.find(query).toArray();
+      res.send(result);
+    });
+
+    // Update connection
+    app.patch('/myConnection/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateData = req.body;
+      const query = { _id: new ObjectId(id) };
+      const update = { $set: updateData };
+      const result = await myConnection.updateOne(query, update);
+      res.send(result);
+    });
+
+    // Top 6 study profiles by rating
+    app.get('/topStudyProfile', async (req, res) => {
+      const result = await userProfileColl.find().sort({ rating: -1 }).limit(6).toArray();
+      res.send(result);
+    });
+
+    // ✅ Ping MongoDB to confirm successful connection
+    await client.db('admin').command({ ping: 1 });
+    console.log('Pinged MongoDB successfully ✅');
+  } finally{
     
   }
 }
-console.log(process.env.DB_USERNAME, process.env.DB_PASSWORD);
 
-run().catch(console.log(console.dir))
-app.listen(port,()=>{
-    console.log('server start here studymate ',port)
-})
+run().catch(console.dir)
 
+// ✅ Start Express server
+app.listen(port, () => {
+  console.log(`Server running on port ${port} 🚀`);
+});
