@@ -58,10 +58,26 @@ async function run() {
     });
 
     // Get all user profiles
-    app.get('/userProfile', async (req, res) => {
-      const result = await userProfileColl.find().toArray();
-      res.send(result);
+app.get('/userProfile', async (req, res) => {
+  const sortExperience = req.query.experienceSort; // Beginner / Intermediate / Expert
+
+  let result = await userProfileColl.find().toArray();
+
+  if (sortExperience) {
+    const clickedLevel = sortExperience; // jeta button theke pathano hocche
+
+    // clicked level sob samne, baki original order maintain
+    result.sort((a, b) => {
+      if (a.experienceLevel === clickedLevel && b.experienceLevel !== clickedLevel) return -1;
+      if (b.experienceLevel === clickedLevel && a.experienceLevel !== clickedLevel) return 1;
+      return 0; // baki order maintain
     });
+  }
+
+  res.send(result);
+});
+
+
 
     // Send partner request
     app.post('/myConnection', async (req, res) => {
@@ -134,6 +150,7 @@ async function run() {
       const result = await userProfileColl.find().sort({ rating: -1 }).limit(6).toArray();
       res.send(result);
     });
+
 
     // ✅ Ping MongoDB to confirm successful connection
     await client.db('admin').command({ ping: 1 });
