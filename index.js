@@ -4,7 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 const port = process.env.PORT || 9000;
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ofja8we.mongodb.net/?retryWrites=true&w=majority&tls=true`;
 
@@ -115,6 +115,19 @@ async function run() {
       const result = await myConnection.updateOne(query, update);
       res.send(result);
     });
+    
+    app.get('/search',async(req,res)=>{
+        const search_text=req.query.search;
+        let  query={}
+        if(search_text)
+        {
+          query={subject:{$regex: search_text, $options:'i'}}
+        }
+        
+        const result=await userProfileColl.find(query).toArray()
+        res.send(result)
+    })
+   
 
     // Top 6 study profiles by rating
     app.get('/topStudyProfile', async (req, res) => {
