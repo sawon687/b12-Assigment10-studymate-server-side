@@ -58,24 +58,24 @@ async function run() {
     });
 
     // Get all user profiles
-app.get('/userProfile', async (req, res) => {
-  const sortExperience = req.query.experienceSort; // Beginner / Intermediate / Expert
+    app.get('/userProfile', async (req, res) => {
+      const sortExperience = req.query.experienceSort; // Beginner / Intermediate / Expert
 
-  let result = await userProfileColl.find().toArray();
+      let result = await userProfileColl.find().toArray();
 
-  if (sortExperience) {
-    const clickedLevel = sortExperience; // jeta button theke pathano hocche
+      if (sortExperience) {
+        const clickedLevel = sortExperience; // jeta button theke pathano hocche
 
-    // clicked level sob samne, baki original order maintain
-    result.sort((a, b) => {
-      if (a.experienceLevel === clickedLevel && b.experienceLevel !== clickedLevel) return -1;
-      if (b.experienceLevel === clickedLevel && a.experienceLevel !== clickedLevel) return 1;
-      return 0; // baki order maintain
+        // clicked level sob samne, baki original order maintain
+        result.sort((a, b) => {
+          if (a.experienceLevel === clickedLevel && b.experienceLevel !== clickedLevel) return -1;
+          if (b.experienceLevel === clickedLevel && a.experienceLevel !== clickedLevel) return 1;
+          return 0; // baki order maintain
+        });
+      }
+
+      res.send(result);
     });
-  }
-
-  res.send(result);
-});
 
 
 
@@ -100,7 +100,7 @@ app.get('/userProfile', async (req, res) => {
           message: 'Partner Request Sent Successfully!',
           requestData: result,
           updateCount,
-        });
+        });j
       } catch (error) {
         res.status(500).send({ success: false, message: error.message });
       }
@@ -131,19 +131,18 @@ app.get('/userProfile', async (req, res) => {
       const result = await myConnection.updateOne(query, update);
       res.send(result);
     });
-    
-    app.get('/search',async(req,res)=>{
-        const search_text=req.query.search;
-        let  query={}
-        if(search_text)
-        {
-          query={subject:{$regex: search_text, $options:'i'}}
-        }
-        
-        const result=await userProfileColl.find(query).toArray()
-        res.send(result)
+        //  search profile
+    app.get('/search', async (req, res) => {
+      const search_text = req.query.search;
+      let query = {}
+      if (search_text) {
+        query = { subject: { $regex: search_text, $options: 'i' } }
+      }
+
+      const result = await userProfileColl.find(query).toArray()
+      res.send(result)
     })
-   
+
 
     // Top 6 study profiles by rating
     app.get('/topStudyProfile', async (req, res) => {
@@ -155,8 +154,8 @@ app.get('/userProfile', async (req, res) => {
     // ✅ Ping MongoDB to confirm successful connection
     await client.db('admin').command({ ping: 1 });
     console.log('Pinged MongoDB successfully ✅');
-  } finally{
-    
+  } finally {
+
   }
 }
 
