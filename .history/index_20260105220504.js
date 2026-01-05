@@ -46,8 +46,7 @@ async function run() {
          {
            return 
          }
-        const result = await userColl.insertOne(userInfo);
-        console.log('result',result)
+        const result = await userProfileColl.insertOne(userInfo);
         res.send(result);
       } catch (error) {
         res.status(500).send({ success: false, message: error.message });
@@ -91,7 +90,7 @@ async function run() {
          }
       const result = await userProfileColl.find(query).limit(Number(limit)|| 0).skip(Number(skip)||0).toArray();
       const Totalcount=await userProfileColl.countDocuments()
-        
+          console.log('result',result)
       if (experienceSort) {
         const clickedLevel = experienceSort; // jeta button theke pathano hocche
 

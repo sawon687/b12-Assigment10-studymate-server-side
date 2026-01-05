@@ -46,8 +46,8 @@ async function run() {
          {
            return 
          }
-        const result = await userColl.insertOne(userInfo);
-        console.log('result',result)
+        const result = await userProfileColl.insertOne(userInfo);
+        console.lo
         res.send(result);
       } catch (error) {
         res.status(500).send({ success: false, message: error.message });

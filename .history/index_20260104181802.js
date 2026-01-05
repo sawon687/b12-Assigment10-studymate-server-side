@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 async function run() {
   try {
     // ✅ Connect to MongoDB Atlas
-    await client.connect();
+    // await client.connect();
     console.log('MongoDB connected successfully ✅');
 
     const db = client.db('StudymateDB');
@@ -44,10 +44,9 @@ async function run() {
          const alereadyExit=await userColl.findOne(query)
          if(alereadyExit)
          {
-           return 
+           return res.send({success:true,message:'already regi'})
          }
-        const result = await userColl.insertOne(userInfo);
-        console.log('result',result)
+        const result = await userProfileColl.insertOne(userInfo);
         res.send(result);
       } catch (error) {
         res.status(500).send({ success: false, message: error.message });
@@ -79,7 +78,7 @@ async function run() {
     // Get all user profiles
     app.get('/userProfile', async (req, res) => {
       const {experienceSort,limit,search,skip}= req.query; 
-   
+      console.log('experience',limit,search,skip)
          const query={}
          if(search)
          {
@@ -91,7 +90,7 @@ async function run() {
          }
       const result = await userProfileColl.find(query).limit(Number(limit)|| 0).skip(Number(skip)||0).toArray();
       const Totalcount=await userProfileColl.countDocuments()
-        
+          console.log('result',result)
       if (experienceSort) {
         const clickedLevel = experienceSort; // jeta button theke pathano hocche
 
@@ -172,7 +171,17 @@ async function run() {
       const result = await myConnection.updateOne(query, update);
       res.send(result);
     });
-      
+        //  search profile
+    // app.get('/search', async (req, res) => {
+    //   const search_text = req.query.search;
+    //   let query = {}
+    //   if (search_text) {
+    //     query = { subject: { $regex: search_text, $options: 'i' } }
+    //   }
+
+    //   const result = await userProfileColl.find(query).toArray()
+    //   res.send(result)
+    // })
 
 
     // Top 6 study profiles by rating
@@ -182,8 +191,8 @@ async function run() {
     });
 
 
-    // ✅ Ping MongoDB to confirm successful connection
-    await client.db('admin').command({ ping: 1 });
+    // // ✅ Ping MongoDB to confirm successful connection
+    // await client.db('admin').command({ ping: 1 });
     console.log('Pinged MongoDB successfully ✅');
   } finally {
 
