@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 async function run() {
   try {
     // ✅ Connect to MongoDB Atlas
-    // await client.connect();
+    await client.connect();
     console.log('MongoDB connected successfully ✅');
 
     const db = client.db('StudymateDB');
@@ -209,7 +209,7 @@ async function run() {
 
     // ✅ Ping MongoDB to confirm successful connection
     // await client.db('admin').command({ ping: 1 });
-    // console.log('Pinged MongoDB successfully ✅');
+    console.log('Pinged MongoDB successfully ✅');
   } finally {
 
   }

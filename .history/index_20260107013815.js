@@ -44,7 +44,7 @@ async function run() {
          const alereadyExit=await userColl.findOne(query)
          if(alereadyExit)
          {
-           return res.status(400).send({ success: false, message: "User already exists" });
+           return 
          }
 
          userInfo.Role='user'
@@ -88,22 +88,22 @@ async function run() {
         res.status(500).send({ success: false, message: error.message });
       }
     });
-      app.get('/userProfile/:email', async (req, res) => {
+    //   app.get('/userProfile/:email', async (req, res) => {
      
-        const email = req.params.id;
-        const query = {email:email}
-         if(email)
-         {
-            const result = await userProfileColl.findOne(query);
-            res.send(result);
-         }
+    //     const email = req.params.id;
+    //     const query = {email:email}
+    //      if(email)
+    //      {
+    //         const result = await userProfileColl.findOne(query);
+    //         res.send(result);
+    //      }
       
-        res.status(500).send({ success: false, message: error.message });
+    //     res.status(500).send({ success: false, message: error.message });
       
-    });
+    // });
     // Get all user profiles
     app.get('/userProfile', async (req, res) => {
-      const {experienceSort,limit,search,skip}= req.query; 
+      const {experienceSort,limit,search,skip,}= req.query; 
    
          const query={}
          if(search)
@@ -161,7 +161,7 @@ async function run() {
           message: 'Partner Request Sent Successfully!',
           requestData: result,
           updateCount,
-        });
+        });j
       } catch (error) {
         res.status(500).send({ success: false, message: error.message });
       }

@@ -209,7 +209,7 @@ async function run() {
 
     // ✅ Ping MongoDB to confirm successful connection
     // await client.db('admin').command({ ping: 1 });
-    // console.log('Pinged MongoDB successfully ✅');
+    console.log('Pinged MongoDB successfully ✅');
   } finally {
 
   }

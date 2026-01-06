@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 async function run() {
   try {
     // ✅ Connect to MongoDB Atlas
-    // await client.connect();
+    await client.connect();
     console.log('MongoDB connected successfully ✅');
 
     const db = client.db('StudymateDB');
@@ -44,7 +44,7 @@ async function run() {
          const alereadyExit=await userColl.findOne(query)
          if(alereadyExit)
          {
-           return res.status(400).send({ success: false, message: "User already exists" });
+           return 
          }
 
          userInfo.Role='user'
@@ -103,7 +103,7 @@ async function run() {
     });
     // Get all user profiles
     app.get('/userProfile', async (req, res) => {
-      const {experienceSort,limit,search,skip}= req.query; 
+      const {experienceSort,limit,search,skip,}= req.query; 
    
          const query={}
          if(search)
@@ -161,7 +161,7 @@ async function run() {
           message: 'Partner Request Sent Successfully!',
           requestData: result,
           updateCount,
-        });
+        });j
       } catch (error) {
         res.status(500).send({ success: false, message: error.message });
       }
@@ -209,7 +209,7 @@ async function run() {
 
     // ✅ Ping MongoDB to confirm successful connection
     // await client.db('admin').command({ ping: 1 });
-    // console.log('Pinged MongoDB successfully ✅');
+    console.log('Pinged MongoDB successfully ✅');
   } finally {
 
   }
