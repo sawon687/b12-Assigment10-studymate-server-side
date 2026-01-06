@@ -36,7 +36,7 @@ async function run() {
     const userColl=db.collection('userColl')
     const myConnection = db.collection('partnerRequest');
         
-// user data get
+// 
      app.post('/user', async (req, res) => {
       try {
         const userInfo= req.body;
