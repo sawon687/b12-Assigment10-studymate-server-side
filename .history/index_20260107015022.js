@@ -5,9 +5,9 @@ require('dotenv').config();
 const port = process.env.PORT || 7000;
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { messaging } = require('firebase-admin');
 
-
-const uri =`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ofja8we.mongodb.net/?retryWrites=true&w=majority&tls=true`;
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.ofja8we.mongodb.net/?retryWrites=true&w=majority&tls=true`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 async function run() {
   try {
     // ✅ Connect to MongoDB Atlas
-    // await client.connect();
+    await client.connect();
     console.log('MongoDB connected successfully ✅');
 
     const db = client.db('StudymateDB');
@@ -115,7 +115,7 @@ async function run() {
             ]
          }
       const result = await userProfileColl.find(query).limit(Number(limit)|| 0).skip(Number(skip)||0).toArray();
-      const Totalcount=await userProfileColl.countDocuments(query)
+      const Totalcount=await userProfileColl.countDocuments()
         
       if (experienceSort) {
         const clickedLevel = experienceSort; // jeta button theke pathano hocche
