@@ -28,7 +28,7 @@ app.get('/', (req, res) => {
 async function run() {
   try {
     // ✅ Connect to MongoDB Atlas
-    // await client.connect();
+    await client.connect();
     console.log('MongoDB connected successfully ✅');
 
     const db = client.db('StudymateDB');
@@ -47,19 +47,8 @@ async function run() {
            return 
          }
 
-         userInfo.Role='user'
+         userProfileColl.
         const result = await userColl.insertOne(userInfo);
-        res.send(result);
-      } catch (error) {
-        res.status(500).send({ success: false, message: error.message });
-      }
-    });
-
-
-     app.get('/user', async (req, res) => {
-      try {
-       
-        const result = await userColl.find().toArray();
         console.log('result',result)
         res.send(result);
       } catch (error) {
@@ -88,30 +77,18 @@ async function run() {
         res.status(500).send({ success: false, message: error.message });
       }
     });
-      app.get('/userProfile/:email', async (req, res) => {
-     
-        const email = req.params.id;
-        const query = {email:email}
-         if(email)
-         {
-            const result = await userProfileColl.findOne(query);
-            res.send(result);
-         }
-      
-        res.status(500).send({ success: false, message: error.message });
-      
-    });
+
     // Get all user profiles
     app.get('/userProfile', async (req, res) => {
-      const {experienceSort,limit,search,skip,}= req.query; 
+      const {experienceSort,limit,search,skip}= req.query; 
    
          const query={}
          if(search)
          {
             query.$or=[
-              {name:{$regex:search, $options: 'i'}},
-              {subject:{$regex:search, $options: 'i'}},
-              {studyMode:{$regex:search, $options: 'i'}},
+              {name:{$regex:search,$options:'i'}},
+              {subject:{$regex:search,$options:'i'}},
+              {studyMode:{$regex:search,$options:'i'}},
             ]
          }
       const result = await userProfileColl.find(query).limit(Number(limit)|| 0).skip(Number(skip)||0).toArray();
@@ -208,8 +185,8 @@ async function run() {
 
 
     // ✅ Ping MongoDB to confirm successful connection
-    // await client.db('admin').command({ ping: 1 });
-    // console.log('Pinged MongoDB successfully ✅');
+    await client.db('admin').command({ ping: 1 });
+    console.log('Pinged MongoDB successfully ✅');
   } finally {
 
   }
